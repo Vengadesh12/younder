@@ -27,13 +27,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               VALUES ('$contract_no', '$tender_no', '$project_name', '$assigned_team', '$current_status', '$project_duration', '$client_name', '$client_id', '$pile_type', '$no_of_piles', '$pile_length', '$expected_installation_rate', '$penetration_record', '$rig_details', '$address', '$rig_length', '$start_date', '$end_date', '$restrike', '$no_of_days_piling')";
               
     if (mysqli_query($conn, $query)) {
-        echo "<script>alert('Project added successfully!'); window.location.href='index.php';</script>";
+        echo "<script>alert('Project added successfully!'); localStorage.clear(); window.location.href='index.php';</script>";
     } else {
         echo "Error: " . mysqli_error($conn);
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,11 +42,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <h2>Project Management Form</h2>
-    <form method="POST">
-        Contract No: <input type="text" name="contract_no" required><br>
-        Tender No: <input type="text" name="tender_no" required><br>
-        Project Name: <input type="text" name="project_name" required><br>
-        Assigned Team: <input type="text" name="assigned_team" required><br>
+    <form method="POST" id="projectForm">
+        Contract No: <input type="text" name="contract_no"><br>
+        Tender No: <input type="text" name="tender_no"><br>
+        Project Name: <input type="text" name="project_name"><br>
+        Assigned Team: <input type="text" name="assigned_team"><br>
         Current Status: <input type="text" name="current_status"><br>
         Project Duration: <input type="text" name="project_duration"><br>
         Client Name: <input type="text" name="client_name"><br>
@@ -63,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         Start Date: <input type="date" name="start_date"><br>
         End Date: <input type="date" name="end_date"><br>
         Restrike %: <input type="number" name="restrike"><br>
-        No. of Days Piling: <input type="number" name="no_of_days_piling"><br>
+        No. of Days Piling: <input type="number" name="no_of_days_piling"><br><br>
 
         <button type="submit">Submit</button>
     </form>
@@ -79,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <th>Actions</th>
         </tr>
         <?php
-        $result = mysqli_query($conn, "SELECT * FROM projects");
+        $result = mysqli_query($conn, "SELECT * FROM projects ORDER BY id DESC");
         while ($row = mysqli_fetch_assoc($result)) {
             echo "<tr>
                     <td>{$row['id']}</td>
@@ -95,5 +94,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         ?>
     </table>
+
+    <script>
+        // Save form data on change
+        $(document).ready(function () {
+            // Load saved data
+            $('#projectForm').find('input').each(function () {
+                let name = $(this).attr('name');
+                if (localStorage.getItem(name)) {
+                    $(this).val(localStorage.getItem(name));
+                }
+            });
+
+            // Save data on input
+            $('#projectForm').find('input').on('input', function () {
+                let name = $(this).attr('name');
+                let value = $(this).val();
+                localStorage.setItem(name, value);
+            });
+        });
+    </script>
 </body>
 </html>
